@@ -209,6 +209,17 @@ describe("getGPUCategory", () => {
       ["Radeon 780M", "AMD Integrated"],
       ["Ryzen AI MAX+ 395", "AMD Integrated"],
       ["Radeon AI PRO R9700", "AMD Pro"],
+      ["MI455X", "AMD Instinct"],
+      ["MI355X", "AMD Instinct"],
+      ["MI350X", "AMD Instinct"],
+      ["MI350P", "AMD Instinct"],
+      ["MI325X", "AMD Instinct"],
+      ["MI300X", "AMD Instinct"],
+      ["MI300A", "AMD Instinct"],
+      ["MI250X", "AMD Instinct"],
+      ["MI250", "AMD Instinct"],
+      ["MI210", "AMD Instinct"],
+      ["MI100", "AMD Instinct"],
     ])("%s → %s", (name, expected) => {
       expect(getGPUCategory(name)).toBe(expected);
     });
@@ -301,6 +312,15 @@ describe("matchGPU", () => {
     const result = matchGPU("NVIDIA GeForce RTX 4090 Laptop GPU");
     expect(result).not.toBeNull();
     expect(result!.vram).toBe(16);
+  });
+
+  it("matches AMD Instinct and prefers the longer MI250X name", () => {
+    expect(matchGPU("AMD Instinct MI455X")).toEqual({ vram: 432, bw: 23300, cores: 32768 });
+    expect(matchGPU("AMD Instinct MI350P")).toEqual(GPU_DB["MI350P"]);
+    expect(matchGPU("AMD Instinct MI300X")).toEqual(GPU_DB["MI300X"]);
+    expect(matchGPU("AMD Instinct MI300A")).toEqual(GPU_DB["MI300A"]);
+    expect(matchGPU("AMD Instinct MI250X")).toEqual(GPU_DB["MI250X"]);
+    expect(matchGPU("AMD Instinct MI100")?.vram).toBe(32);
   });
 
   it("matches AMD GPUs", () => {

@@ -166,6 +166,24 @@ export const GPU_DB: Record<string, { vram: number; bw: number; cores: number }>
   "A10": { vram: 24, bw: 600, cores: 9216 },
   "A10G": { vram: 24, bw: 600, cores: 9216 },
   "T4": { vram: 16, bw: 300, cores: 2560 },
+
+  // AMD Instinct (CDNA). cores are stream processors, 64 per CU.
+  // Source: AMD Instinct product pages and ROCm GPU specifications.
+  // https://rocm.docs.amd.com/en/latest/reference/gpu-specs.html
+  // CDNA5: 256 WGPs, each with four 32-thread SIMDs (128 lanes). AMD does not
+  // publish a stream-processor count; 256 × 128 matches the catalog's core unit.
+  "MI455X": { vram: 432, bw: 23300, cores: 32768 }, // 432 GB HBM4, 23.3 TB/s
+  "MI355X": { vram: 288, bw: 8000, cores: 16384 }, // CDNA4, 256 CUs, 288 GB HBM3E, 8 TB/s
+  "MI350X": { vram: 288, bw: 8000, cores: 16384 }, // CDNA4, 256 CUs, 288 GB HBM3E, 8 TB/s
+  "MI350P": { vram: 144, bw: 4000, cores: 8192 }, // CDNA4 PCIe, 128 CUs, 144 GB HBM3E, 4 TB/s
+  "MI325X": { vram: 256, bw: 6000, cores: 19456 }, // CDNA3, 304 CUs, 256 GB HBM3E, 6 TB/s
+  "MI300X": { vram: 192, bw: 5300, cores: 19456 }, // CDNA3, 304 CUs, 192 GB HBM3, 5.3 TB/s
+  // Unified HBM3 shared with 24 Zen 4 cores. Kept as a memory pool, same as GH200.
+  "MI300A": { vram: 128, bw: 5300, cores: 14592 }, // CDNA3, 228 CUs, 128 GB, 5.3 TB/s
+  "MI250X": { vram: 128, bw: 3200, cores: 14080 }, // CDNA2, 220 CUs, 128 GB HBM2e, 3.2 TB/s
+  "MI250": { vram: 128, bw: 3200, cores: 13312 }, // CDNA2, 208 CUs, 128 GB HBM2e, 3.2 TB/s
+  "MI210": { vram: 64, bw: 1600, cores: 6656 }, // CDNA2, 104 CUs, 64 GB HBM2e, 1.6 TB/s
+  "MI100": { vram: 32, bw: 1230, cores: 7680 }, // CDNA, 120 CUs, 32 GB HBM2, 1.23 TB/s
   "Tesla P40": { vram: 24, bw: 346, cores: 3840 },
   "Tesla V100 32GB": { vram: 32, bw: 900, cores: 5120 },
   "Tesla V100": { vram: 16, bw: 900, cores: 5120 },
@@ -1694,7 +1712,7 @@ export function getDeviceOverrides(deviceKey: string): HardwareOverrides | null 
 export const RAM_OPTIONS = [2, 4, 6, 8, 10, 12, 16, 18, 20, 24, 32, 36, 40, 48, 64, 80, 96, 128, 192, 256, 384, 512, 768, 1024];
 export const GPU_COUNT_OPTIONS = [1, 2, 3, 4, 6, 8];
 export const SYSTEM_RAM_OPTIONS = [4, 8, 16, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024];
-export const BW_OPTIONS = [50, 68, 100, 120, 150, 153, 170, 200, 224, 256, 273, 288, 300, 307, 346, 360, 408, 432, 448, 456, 504, 546, 608, 614, 672, 768, 819, 960, 1008, 1024, 1200, 1792, 2039, 3350, 4000];
+export const BW_OPTIONS = [50, 68, 100, 120, 150, 153, 170, 200, 224, 256, 273, 288, 300, 307, 346, 360, 408, 432, 448, 456, 504, 546, 608, 614, 672, 768, 819, 960, 1008, 1024, 1200, 1230, 1600, 1792, 2039, 3200, 3350, 4000, 5300, 6000, 8000, 23300];
 export function buildSelectOptions(presets: number[], detected: number | null): number[] {
   const set = new Set(presets);
   if (detected !== null && detected > 0) set.add(detected);
@@ -1714,6 +1732,7 @@ export function getGPUCategory(name: string): string {
   if (name.startsWith("GTX 16")) return "NVIDIA GTX 16";
   if (name.startsWith("GTX 10")) return "NVIDIA GTX 10";
   if (name.startsWith("GTX 9")) return "NVIDIA GTX 9";
+  if (/^MI\d/.test(name)) return "AMD Instinct";
   if (/^Radeon (AI )?PRO\b/.test(name)) return "AMD Pro";
   if (name.startsWith("RX 9")) return "AMD RX 9000";
   if (name.startsWith("RX 7")) return "AMD RX 7000";
@@ -1731,6 +1750,6 @@ export function getGPUCategory(name: string): string {
 export const DEVICE_CATEGORY_ORDER = [
   "Apple Silicon", "NVIDIA RTX 50", "NVIDIA RTX 40", "NVIDIA RTX 30", "NVIDIA RTX 20",
   "NVIDIA GTX 16", "NVIDIA GTX 10", "NVIDIA GTX 9", "NVIDIA Pro", "NVIDIA Datacenter",
-  "AMD RX 9000", "AMD Pro", "AMD RX 7000", "AMD RX 6000", "AMD RX 5000", "AMD Older", "AMD Integrated",
+  "AMD Instinct", "AMD RX 9000", "AMD Pro", "AMD RX 7000", "AMD RX 6000", "AMD RX 5000", "AMD Older", "AMD Integrated",
   "Intel Arc", "Intel Integrated", "Mobile", "SBC / Embedded",
 ];

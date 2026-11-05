@@ -76,9 +76,10 @@ const FAMILIES: {
   {
     id: "amd",
     name: "AMD",
-    description: "Radeon discrete GPUs and integrated graphics.",
+    description: "Instinct accelerators, Radeon discrete GPUs and integrated graphics.",
     vendors: ["amd"],
     categories: [
+      "AMD Instinct",
       "AMD RX 9000",
       "AMD Pro",
       "AMD RX 7000",
